@@ -27,14 +27,20 @@ Plug 'phpactor/ncm2-phpactor'
 Plug 'nelsyeung/twig.vim'
 "Snippets:
 Plug 'ncm2/ncm2-ultisnips'
-Plug 'SirVer/ultisnips' | Plug 'phux/vim-snippets'
-"Tags:
-Plug 'ludovicchabant/vim-gutentags'
+Plug 'SirVer/ultisnips'
+Plug 'jimafisk/vim-snippets'
 "Debugger:
 Plug 'joonty/vdebug'
 "Git:
 Plug 'tpope/vim-fugitive'
+"Syntax Checking:
+Plug 'vim-syntastic/syntastic'
 call plug#end()
+
+"COPY/PASTE:
+"-----------
+"Increases the memory limit from 50 lines to 1000 lines
+:set viminfo='100,<1000,s10,h
 
 "AUTOCOMPLETE:
 "-------------
@@ -50,9 +56,15 @@ inoremap <silent> <expr> <CR> (pumvisible() ? ncm2_ultisnips#expand_or("\<CR>", 
 "Cycle through completion entries with tab/shift+tab
 inoremap <expr> <TAB> pumvisible() ? "\<c-n>" : "\<TAB>"
 inoremap <expr> <s-tab> pumvisible() ? "\<c-p>" : "\<TAB>"
+"Allow getting out of pop with Down/Up arrow keys
+inoremap <expr> <down> pumvisible() ? "\<C-E>" : "\<down>"
+inoremap <expr> <up> pumvisible() ? "\<C-E>" : "\<up>"
 
 "SNIPPETS:
 "---------
+"Recognize Drupal 8 snippets
+autocmd FileType php UltiSnipsAddFiletypes php-drupal8
+"Change default expand since TAB is used to cycle options
 let g:UltiSnipsExpandTrigger="<c-j>"
 let g:UltiSnipsJumpForwardTrigger="<c-j>"
 let g:UltiSnipsJumpBackwardTrigger="<c-k>"
@@ -72,6 +84,12 @@ set shiftwidth=2
 set shiftround
 set expandtab
 
+"INDENTATION:
+"------------
+"Highlights code for multiple indents without reselecting
+vnoremap < <gv
+vnoremap > >gv
+
 "COLOR:
 "------
 colorscheme gruvbox
@@ -81,6 +99,8 @@ set background=dark
 "------------
 "allows FZF to open by pressing CTRL-F
 map <C-f> :FZF<CR>
+"allow FZF to search hidden 'dot' files
+let $FZF_DEFAULT_COMMAND = "find -L"
 
 "FILE BROWSER:
 "-------------
@@ -177,3 +197,21 @@ syntax on
 nnoremap <silent> <C-l> :nohl<CR><C-l>
 " Highlight the current line the cursor is on
 set cursorline
+
+"CODE SNIFFER:
+"-------------
+let g:syntastic_php_phpcs_args="--standard=Drupal --extensions=php,module,inc,install,test,profile,theme"
+if has('statusline')
+  set laststatus=2
+  " Broken down into easily includeable segments
+  set statusline=%<%f\ " Filename
+  set statusline+=%w%h%m%r " Options
+  set statusline+=%{fugitive#statusline()} " Git Hotness
+  set statusline+=\ [%{&ff}/%Y] " filetype
+  set statusline+=\ [%{getcwd()}] " current dir
+  set statusline+=%#warningmsg#
+  set statusline+=%{SyntasticStatuslineFlag()}
+  set statusline+=%*
+  let g:syntastic_enable_signs=1
+  set statusline+=%=%-14.(%l,%c%V%)\ %p%% " Right aligned file nav info
+endif
