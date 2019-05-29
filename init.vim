@@ -12,10 +12,14 @@ Plug 'junegunn/fzf.vim'
 "File Browser:
 Plug 'scrooloose/nerdtree'
 Plug 'jistr/vim-nerdtree-tabs'
-Plug 'Xuyuanp/nerdtree-git-plugin'
+"Plug 'Xuyuanp/nerdtree-git-plugin'
 Plug 'mkitt/tabline.vim'
+"Icons:
+Plug 'ryanoasis/vim-devicons'
+"Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 "Color:
 Plug 'morhetz/gruvbox'
+"Plug 'fatih/molokai'
 "Autocomplete:
 Plug 'ncm2/ncm2'
 Plug 'roxma/nvim-yarp'
@@ -35,6 +39,10 @@ Plug 'joonty/vdebug'
 Plug 'tpope/vim-fugitive'
 "Syntax Checking:
 Plug 'vim-syntastic/syntastic'
+"Golang:
+Plug 'fatih/vim-go'
+Plug 'stamblerre/gocode', { 'rtp': 'nvim', 'do': '~/.config/nvim/plugged/gocode/nvim/symlink.sh' }
+Plug 'ncm2/ncm2-go'
 call plug#end()
 
 "COPY/PASTE:
@@ -125,6 +133,24 @@ let g:NERDTreeIndicatorMapCustom = {
     \ 'Ignored'   : '☒ ',
     \ "Unknown"   : "?"
     \ }
+let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols = {}
+let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['module'] = ''
+let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['theme'] = ''
+let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['install'] = ''
+"Add folder icon to directories
+let g:WebDevIconsUnicodeDecorateFolderNodes = 1
+let g:DevIconsEnableFoldersOpenClose = 1
+"Hide expand/collapse arrows
+let g:NERDTreeDirArrowExpandable = "\u00a0"
+let g:NERDTreeDirArrowCollapsible = "\u00a0"
+let g:WebDevIconsNerdTreeBeforeGlyphPadding = ""
+highlight! link NERDTreeFlags NERDTreeDir
+"let g:WebDevIconsUnicodeDecorateFolderNodes = v:true
+"Fix lag in NERDtree do to https://github.com/tiagofumo/vim-nerdtree-syntax-highlight/issues/6
+"let g:NERDTreeDisableExactMatchHighlight = 1
+"let g:NERDTreeDisablePatternMatchHighlight = 1
+"let g:NERDTreeSyntaxDisableDefaultExtensions = 1
+"let g:NERDTreeSyntaxEnabledExtensions = ['php', 'module', 'install', 'theme', 'js', 'css', 'scss', 'twig']
 
 "SHORTCUTS:
 "----------
