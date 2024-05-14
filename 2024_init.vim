@@ -10,11 +10,8 @@ call plug#begin('~/.config/nvim/plugged')
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 "File Browser:
-Plug 'scrooloose/nerdtree'
-Plug 'jistr/vim-nerdtree-tabs'
-Plug 'mkitt/tabline.vim'
-Plug 'ryanoasis/vim-devicons'
-Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
+Plug 'nvim-tree/nvim-tree.lua'
+Plug 'nvim-tree/nvim-web-devicons'
 "Color:
 Plug 'morhetz/gruvbox'
 Plug 'navarasu/onedark.nvim'
@@ -86,61 +83,20 @@ let $FZF_DEFAULT_COMMAND = "find -L"
 
 "FILE BROWSER:
 "-------------
-"allows NERDTree to open/close by typing 'n' then 't'
-map nt :NERDTreeTabsToggle<CR>
-"Start NERDtree when dir is selected (e.g. "vim .") and start NERDTreeTabs
-"let g:nerdtree_tabs_open_on_console_startup=2
-"Add a close button in the upper right for tabs
-let g:tablineclosebutton=1
-"Automatically find and select currently opened file in NERDTree
-let g:nerdtree_tabs_autofind=1
-"Show hidden dot files by default
-let NERDTreeShowHidden=1
-"Add folder icon to directories
-let g:WebDevIconsUnicodeDecorateFolderNodes = 1
-let g:DevIconsEnableFoldersOpenClose = 1
-"Hide expand/collapse arrows
-let g:NERDTreeDirArrowExpandable = "\u00a0"
-let g:NERDTreeDirArrowCollapsible = "\u00a0"
-let g:WebDevIconsNerdTreeBeforeGlyphPadding = ""
-highlight! link NERDTreeFlags NERDTreeDir
-
-"ICONS:
-"------
-"Only needed until https://github.com/ryanoasis/vim-devicons/pull/460
-let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols = {} " needed
-let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['svelte'] = ''
-let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['svg'] = '󰜡'
-let g:WebDevIconsUnicodeDecorateFileNodesPatternSymbols = {}
-let g:WebDevIconsUnicodeDecorateFileNodesPatternSymbols['.gitignore'] = '󰊢'
-let g:WebDevIconsUnicodeDecorateFileNodesPatternSymbols['.gitattributes'] = '󰊢'
-"Make icon red instead of default color
-let s:brown = "905532"
-let s:aqua =  "3AFFDB"
-let s:blue = "689FB6"
-let s:darkBlue = "44788E"
-let s:purple = "834F79"
-let s:lightPurple = "834F79"
-let s:red = "AE403F"
-let s:beige = "F5C06F"
-let s:yellow = "F09F17"
-let s:orange = "D4843E"
-let s:darkOrange = "F16529"
-let s:pink = "CB6F6F"
-let s:salmon = "EE6E73"
-let s:green = "8FAA54"
-let s:lightGreen = "31B53E"
-let s:white = "FFFFFF"
-let s:rspec_red = 'FE405F'
-let s:git_orange = 'F54D27'
-let g:NERDTreeExtensionHighlightColor = {}
-let g:NERDTreeExtensionHighlightColor['svelte'] = s:red
-let g:NERDTreeExtensionHighlightColor['svg'] = s:yellow
-let g:NERDTreePatternMatchHighlightColor = {}
-let g:NERDTreePatternMatchHighlightColor['.git*'] = s:git_orange
-"let g:NERDTreeExactMatchHighlightColor = {}
-"let g:NERDTreeExactMatchHighlightColor['.gitignore'] = s:git_orange
-"let g:NERDTreeExactMatchHighlightColor['.gitattributes'] = s:git_orange
+"map nt :NvimTreeToggle<CR>
+function! NvimTreeToggleAll()
+	let current_tab = tabpagenr()
+	if g:nvim_tree_open
+		tabdo NvimTreeClose
+		let g:nvim_tree_open = 0
+	else
+		tabdo NvimTreeOpen
+		let g:nvim_tree_open = 1
+	endif
+	execute 'tabnext' current_tab
+endfunction
+let g:nvim_tree_open = 0
+nnoremap nt :call NvimTreeToggleAll()<CR>
 
 "SHORTCUTS:
 "----------
@@ -166,6 +122,7 @@ endif
 
 "TERMINAL:
 "---------
+set termguicolors
 " https://www.reddit.com/r/vim/comments/8n5bzs/using_neovim_is_there_a_way_to_display_a_terminal/
 let g:term_buf = 0
 let g:term_win = 0
@@ -232,96 +189,82 @@ set cursorline
 "AUTOCOMPLETE:
 "-------------
 lua <<EOF
-  -- Set up nvim-cmp.
-  local cmp = require'cmp'
+-- Set up nvim-cmp.
+local cmp = require'cmp'
 
-  cmp.setup({
-    snippet = {
-      -- REQUIRED - you must specify a snippet engine
-      expand = function(args)
-        vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
-      end,
-    },
-    window = {
-      -- completion = cmp.config.window.bordered(),
-      -- documentation = cmp.config.window.bordered(),
-    },
-    mapping = cmp.mapping.preset.insert({
-      ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-      ['<C-f>'] = cmp.mapping.scroll_docs(4),
-      ['<C-Space>'] = cmp.mapping.complete(),
-      ['<C-e>'] = cmp.mapping.abort(),
-      ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
-    }),
-    sources = cmp.config.sources({
-      { name = 'nvim_lsp' },
-      { name = 'vsnip' }, -- For vsnip users.
-			{ name = 'nvim_lsp_signature_help' },
-    }, {
-      { name = 'buffer' },
-    })
-  })
+cmp.setup({
+	snippet = {
+		-- REQUIRED - you must specify a snippet engine
+		expand = function(args)
+		vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
+		end,
+	},
+	mapping = cmp.mapping.preset.insert({
+		['<C-b>'] = cmp.mapping.scroll_docs(-4),
+		['<C-f>'] = cmp.mapping.scroll_docs(4),
+		['<C-Space>'] = cmp.mapping.complete(),
+		['<C-e>'] = cmp.mapping.abort(),
+		['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+	}),
+	sources = cmp.config.sources({
+		{ name = 'nvim_lsp' },
+		{ name = 'vsnip' }, -- For vsnip users.
+		{ name = 'nvim_lsp_signature_help' }, -- https://github.com/hrsh7th/nvim-cmp/discussions/993
+	}, {
+		{ name = 'buffer' },
+	})
+})
 
-  -- To use git you need to install the plugin petertriho/cmp-git and uncomment lines below
-  -- Set configuration for specific filetype.
-  --[[ cmp.setup.filetype('gitcommit', {
-    sources = cmp.config.sources({
-      { name = 'git' },
-    }, {
-      { name = 'buffer' },
-    })
- })
- require("cmp_git").setup() ]]-- 
+-- Load LSPs
+local capabilities = require('cmp_nvim_lsp').default_capabilities()
+-- go install golang.org/x/tools/gopls@latest
+require('lspconfig')['gopls'].setup {
+	capabilities = capabilities
+}
+-- npm install -g svelte-language-server
+require('lspconfig')['svelte'].setup {
+	capabilities = capabilities
+}
+-- go install github.com/a-h/templ/cmd/templ@latest
+require('lspconfig')['templ'].setup {
+	capabilities = capabilities
+}
 
-  -- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
-  cmp.setup.cmdline({ '/', '?' }, {
-    mapping = cmp.mapping.preset.cmdline(),
-    sources = {
-      { name = 'buffer' }
-    }
-  })
-
-  -- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
-  cmp.setup.cmdline(':', {
-    mapping = cmp.mapping.preset.cmdline(),
-    sources = cmp.config.sources({
-      { name = 'path' }
-    }, {
-      { name = 'cmdline' }
-    }),
-    matching = { disallow_symbol_nonprefix_matching = false }
-  })
-
-  local capabilities = require('cmp_nvim_lsp').default_capabilities()
-  require('lspconfig')['gopls'].setup {
-    capabilities = capabilities
-  }
-  require('lspconfig')['svelte'].setup {
-    capabilities = capabilities
-  }
-  require('lspconfig')['templ'].setup {
-    capabilities = capabilities
-  }
-
-	-- Set reveal definition / docs to SHIFT+K
-	-- https://vi.stackexchange.com/questions/37225/how-do-i-close-a-hovered-window-with-lsp-information-escape-does-not-work
-	vim.api.nvim_create_autocmd("LspAttach", {
-		callback = function(ev)
-			vim.keymap.set("n", "K", function()
-				local base_win_id = vim.api.nvim_get_current_win()
-				local windows = vim.api.nvim_tabpage_list_wins(0)
-				for _, win_id in ipairs(windows) do
-					if win_id ~= base_win_id then
-						local win_cfg = vim.api.nvim_win_get_config(win_id)
-						if win_cfg.relative == "win" and win_cfg.win == base_win_id then
-							vim.api.nvim_win_close(win_id, {})
-							return
-						end
+-- Set reveal definition / docs to CTRL+K (matches nvim-tree defaults)
+-- https://vi.stackexchange.com/questions/37225/how-do-i-close-a-hovered-window-with-lsp-information-escape-does-not-work
+vim.api.nvim_create_autocmd("LspAttach", {
+	callback = function(ev)
+		vim.keymap.set("n", "<C-k>", function()
+			local base_win_id = vim.api.nvim_get_current_win()
+			local windows = vim.api.nvim_tabpage_list_wins(0)
+			for _, win_id in ipairs(windows) do
+				if win_id ~= base_win_id then
+					local win_cfg = vim.api.nvim_win_get_config(win_id)
+					if win_cfg.relative == "win" and win_cfg.win == base_win_id then
+						vim.api.nvim_win_close(win_id, {})
+						return
 					end
 				end
-				vim.lsp.buf.hover()
-			end, { remap = false, silent = true, buffer = ev.buf, desc = "Toggle hover" })
-			-- Probably lots of other keymaps...
-		end
-	})
+			end
+			vim.lsp.buf.hover()
+		end, { remap = false, silent = true, buffer = ev.buf, desc = "Toggle hover" })
+		-- Probably lots of other keymaps...
+	end
+})
+
+---------------
+-- nvim-tree --
+---------------
+-- disable default netrw
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+vim.opt.termguicolors = true -- enable 24-bit colour
+--require("nvim-tree").setup() -- empty setup using defaults
+require("nvim-tree").setup({
+	open_on_tab = true,
+	update_focused_file = {
+		enable = true,
+	},
+})
+
 EOF
