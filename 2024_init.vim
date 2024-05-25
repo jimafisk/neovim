@@ -122,7 +122,6 @@ endif
 
 "TERMINAL:
 "---------
-set termguicolors
 " https://www.reddit.com/r/vim/comments/8n5bzs/using_neovim_is_there_a_way_to_display_a_terminal/
 let g:term_buf = 0
 let g:term_win = 0
@@ -199,7 +198,12 @@ cmp.setup({
 		vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
 		end,
 	},
-	mapping = cmp.mapping.preset.insert({
+	mapping = cmp.mapping({
+	-- mapping = cmp.mapping.preset.insert({
+		["<C-k>"] = cmp.mapping.select_prev_item(),
+		["<C-j>"] = cmp.mapping.select_next_item(),
+		["<S-Tab>"] = cmp.mapping.select_prev_item(),
+		["<Tab>"] = cmp.mapping.select_next_item(),
 		['<C-b>'] = cmp.mapping.scroll_docs(-4),
 		['<C-f>'] = cmp.mapping.scroll_docs(4),
 		['<C-Space>'] = cmp.mapping.complete(),
