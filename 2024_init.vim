@@ -12,6 +12,9 @@ Plug 'junegunn/fzf.vim'
 "File Browser:
 Plug 'nvim-tree/nvim-tree.lua'
 Plug 'nvim-tree/nvim-web-devicons'
+Plug 'akinsho/bufferline.nvim', { 'tag': '*' }
+"Plug 'crispgm/nvim-tabline'
+"Plug 'romgrk/barbar.nvim'
 "Color:
 Plug 'morhetz/gruvbox'
 Plug 'navarasu/onedark.nvim'
@@ -270,5 +273,25 @@ require("nvim-tree").setup({
 		enable = true,
 	},
 })
+require("bufferline").setup({})
+--require("barbar").setup({})
+--require("bufferline").setup({
+--	mode = tabs,
+--})
+-- require('tabline').setup({
+--	show_icon = true,
+--	brackets = { '', '' },
+--})
 
 EOF
+
+command! BufferCloseAndExitIfLast if len(split(trim(execute('ls')), ' ')) == 1 | exe 'BufferClose' | quit | else | exe 'BufferClose' | endif
+command! CloseAllWindowBuffers windo BufferClose
+set confirm
+map <C-q> :bp<bar>bn<bar>bd<CR>
+map <C-w> :w<CR>
+"map <C-q> :bp<bar>sp<bar>bn<bar>bd<CR>
+nnoremap gT :BufferLineCyclePrev<CR>
+nnoremap gt :BufferLineCycleNext<CR>
+"nnoremap gT :BufferPrevious<CR>
+"nnoremap gt :BufferNext<CR>
