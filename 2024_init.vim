@@ -13,8 +13,6 @@ Plug 'junegunn/fzf.vim'
 Plug 'nvim-tree/nvim-tree.lua'
 Plug 'nvim-tree/nvim-web-devicons'
 Plug 'akinsho/bufferline.nvim', { 'tag': '*' }
-"Plug 'crispgm/nvim-tabline'
-"Plug 'romgrk/barbar.nvim'
 "Color:
 Plug 'morhetz/gruvbox'
 Plug 'navarasu/onedark.nvim'
@@ -86,7 +84,6 @@ let $FZF_DEFAULT_COMMAND = "find -L"
 
 "FILE BROWSER:
 "-------------
-"map nt :NvimTreeToggle<CR>
 function! NvimTreeToggleAll()
 	let current_tab = tabpagenr()
 	if g:nvim_tree_open
@@ -99,7 +96,20 @@ function! NvimTreeToggleAll()
 	execute 'tabnext' current_tab
 endfunction
 let g:nvim_tree_open = 0
+if isdirectory(argv(0))
+	let g:nvim_tree_open = 1
+endif
 nnoremap nt :call NvimTreeToggleAll()<CR>
+
+"TABS / BUFFERS:
+"---------------
+command! BufferCloseAndExitIfLast if len(split(trim(execute('ls')), ' ')) == 1 | exe 'BufferClose' | quit | else | exe 'BufferClose' | endif
+command! CloseAllWindowBuffers windo BufferClose
+set confirm
+map <C-q> :bp<bar>bn<bar>bd<CR>
+map <C-s> :w<CR>
+nnoremap gT :BufferLineCyclePrev<CR>
+nnoremap gt :BufferLineCycleNext<CR>
 
 "SHORTCUTS:
 "----------
@@ -266,32 +276,23 @@ vim.api.nvim_create_autocmd("LspAttach", {
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 vim.opt.termguicolors = true -- enable 24-bit colour
---require("nvim-tree").setup() -- empty setup using defaults
 require("nvim-tree").setup({
 	open_on_tab = true,
 	update_focused_file = {
 		enable = true,
 	},
 })
-require("bufferline").setup({})
---require("barbar").setup({})
---require("bufferline").setup({
---	mode = tabs,
---})
--- require('tabline').setup({
---	show_icon = true,
---	brackets = { '', '' },
---})
+require("bufferline").setup({
+	options = {
+		offsets = {
+			{ filetype = 'NvimTree', text = 'Directory' },
+		},
+	}
+})
+require("nvim-tree").setup({
+	renderer = {
+		root_folder_label = false,
+	},
+})
 
 EOF
-
-command! BufferCloseAndExitIfLast if len(split(trim(execute('ls')), ' ')) == 1 | exe 'BufferClose' | quit | else | exe 'BufferClose' | endif
-command! CloseAllWindowBuffers windo BufferClose
-set confirm
-map <C-q> :bp<bar>bn<bar>bd<CR>
-map <C-w> :w<CR>
-"map <C-q> :bp<bar>sp<bar>bn<bar>bd<CR>
-nnoremap gT :BufferLineCyclePrev<CR>
-nnoremap gt :BufferLineCycleNext<CR>
-"nnoremap gT :BufferPrevious<CR>
-"nnoremap gt :BufferNext<CR>
