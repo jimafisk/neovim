@@ -13,6 +13,7 @@ Plug 'junegunn/fzf.vim'
 Plug 'nvim-tree/nvim-tree.lua'
 Plug 'nvim-tree/nvim-web-devicons'
 Plug 'akinsho/bufferline.nvim', { 'tag': '*' }
+Plug 'jimafisk/vim-bbye'
 "Color:
 Plug 'morhetz/gruvbox'
 Plug 'navarasu/onedark.nvim'
@@ -103,11 +104,13 @@ nnoremap nt :call NvimTreeToggleAll()<CR>
 
 "TABS / BUFFERS:
 "---------------
-command! BufferCloseAndExitIfLast if len(split(trim(execute('ls')), ' ')) == 1 | exe 'BufferClose' | quit | else | exe 'BufferClose' | endif
-command! CloseAllWindowBuffers windo BufferClose
-set confirm
-map <C-q> :bp<bar>bn<bar>bd<CR>
-map <C-s> :w<CR>
+"command! BufferCloseAndExitIfLast if len(split(trim(execute('ls')), ' ')) == 1 | exe 'BufferClose' | quit | else | exe 'BufferClose' | endif
+"command! CloseAllWindowBuffers windo BufferClose
+"set confirm
+"map <C-q> :bp<bar>sp<bar>bn<bar>bd<CR>
+"map <C-q> :bp<bar>bn<bar>bd<CR>
+map <silent> <C-q> :Bdelete<CR>
+map <silent> <C-s> :w<CR>
 nnoremap gT :BufferLineCyclePrev<CR>
 nnoremap gt :BufferLineCycleNext<CR>
 
@@ -152,6 +155,8 @@ function! TermToggle(height)
 		catch
 			call termopen($SHELL, {"detach": 0})
 			let g:term_buf = bufnr("")
+			set nobuflisted
+			set nohidden
 			set nonumber
 			set norelativenumber
 			set signcolumn=no
