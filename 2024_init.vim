@@ -85,6 +85,7 @@ let $FZF_DEFAULT_COMMAND = "find -L"
 
 "FILE BROWSER:
 "-------------
+" https://github.com/nvim-tree/nvim-tree.lua/issues/1493#issuecomment-2111092995
 function! NvimTreeToggleAll()
 	let current_tab = tabpagenr()
 	if g:nvim_tree_open
@@ -104,11 +105,7 @@ nnoremap nt :call NvimTreeToggleAll()<CR>
 
 "TABS / BUFFERS:
 "---------------
-"command! BufferCloseAndExitIfLast if len(split(trim(execute('ls')), ' ')) == 1 | exe 'BufferClose' | quit | else | exe 'BufferClose' | endif
-"command! CloseAllWindowBuffers windo BufferClose
-"set confirm
-"map <C-q> :bp<bar>sp<bar>bn<bar>bd<CR>
-"map <C-q> :bp<bar>bn<bar>bd<CR>
+" https://github.com/moll/vim-bbye/issues/15#issuecomment-2142727505
 map <silent> <C-q> :Bdelete<CR>
 map <silent> <C-s> :w<CR>
 nnoremap gT :BufferLineCyclePrev<CR>
@@ -155,6 +152,7 @@ function! TermToggle(height)
 		catch
 			call termopen($SHELL, {"detach": 0})
 			let g:term_buf = bufnr("")
+			" https://github.com/akinsho/bufferline.nvim/issues/880#issuecomment-2140743483
 			set nobuflisted
 			set nohidden
 			set nonumber
@@ -296,6 +294,7 @@ require("bufferline").setup({
 })
 require("nvim-tree").setup({
 	renderer = {
+		-- https://github.com/NvChad/NvChad/issues/1956#issuecomment-1523128023
 		root_folder_label = false,
 	},
 })
