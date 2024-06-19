@@ -39,12 +39,14 @@ Plug 'hrsh7th/vim-vsnip'
 Plug 'golang/vscode-go'
 "Git:
 Plug 'tpope/vim-fugitive'
+Plug 'lewis6991/gitsigns.nvim'
 call plug#end()
 
 "COPY/PASTE:
 "-----------
 "Increases the memory limit from 50 lines to 1000 lines
 :set viminfo='100,<1000,s10,h
+set clipboard+=unnamedplus
 
 "NUMBERING:
 "----------
@@ -110,6 +112,7 @@ map <silent> <C-q> :Bdelete<CR>
 map <silent> <C-s> :w<CR>
 nnoremap gT :BufferLineCyclePrev<CR>
 nnoremap gt :BufferLineCycleNext<CR>
+set hidden
 
 "SHORTCUTS:
 "----------
@@ -284,6 +287,10 @@ require("nvim-tree").setup({
 	update_focused_file = {
 		enable = true,
 	},
+	renderer = {
+		-- https://github.com/NvChad/NvChad/issues/1956#issuecomment-1523128023
+		root_folder_label = false,
+	},
 })
 require("bufferline").setup({
 	options = {
@@ -292,11 +299,6 @@ require("bufferline").setup({
 		},
 	}
 })
-require("nvim-tree").setup({
-	renderer = {
-		-- https://github.com/NvChad/NvChad/issues/1956#issuecomment-1523128023
-		root_folder_label = false,
-	},
-})
+require('gitsigns').setup()
 
 EOF
