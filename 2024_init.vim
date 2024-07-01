@@ -14,6 +14,8 @@ Plug 'nvim-tree/nvim-tree.lua'
 Plug 'nvim-tree/nvim-web-devicons'
 Plug 'akinsho/bufferline.nvim', { 'tag': '*' }
 Plug 'jimafisk/vim-bbye'
+"Minimap:
+Plug 'echasnovski/mini.map'
 "Color:
 Plug 'morhetz/gruvbox'
 Plug 'navarasu/onedark.nvim'
@@ -287,6 +289,9 @@ require("nvim-tree").setup({
 	update_focused_file = {
 		enable = true,
 	},
+	git = {
+		ignore = false,
+	},
 	renderer = {
 		-- https://github.com/NvChad/NvChad/issues/1956#issuecomment-1523128023
 		root_folder_label = false,
@@ -300,5 +305,25 @@ require("bufferline").setup({
 	}
 })
 require('gitsigns').setup()
+
+-- require('mini.map').setup({
+local map = require("mini.map")
+map.setup({
+	window = {
+		focusable = true,
+	},
+	integrations = {
+		map.gen_integration.gitsigns({
+			add = "GitSignsAdd",
+			change = "GitSignsChange",
+			delete = "GitSignsDelete",
+		}),
+	},
+	symbols = {
+		encode = map.gen_encode_symbols.dot("3x2"),
+	}
+})
+map.open()
+vim.keymap.set('n', 'mm', MiniMap.toggle)
 
 EOF
