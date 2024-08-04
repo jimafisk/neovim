@@ -144,34 +144,7 @@ endif
 let g:term_buf = 0
 let g:term_win = 0
 let g:prev_height = 0
-"function! TermToggle(height)
-"	if win_gotoid(g:term_win) && a:height == g:prev_height
-"		let g:prev_height = 0
-"		hide
-"	elseif g:prev_height == 0
-"		let g:prev_height = a:height
-"		botright new
-"		exec "resize " . a:height
-"		try
-"			exec "buffer " . g:term_buf
-"		catch
-"			call termopen($SHELL, {"detach": 0})
-"			let g:term_buf = bufnr("")
-"			" https://github.com/akinsho/bufferline.nvim/issues/880#issuecomment-2140743483
-"			set nobuflisted
-"			set nohidden
-"			set nonumber
-"			set norelativenumber
-"			set signcolumn=no
-"		endtry
-"		startinsert!
-"		let g:term_win = win_getid()
-"	else
-"		let g:prev_height = a:height
-"		exec "resize " . a:height
-"		startinsert!
-"	endif
-"endfunction
+highlight TerminalBackground guibg=#1a1a1a ctermbg=234
 function! TermToggle(height)
     if win_gotoid(g:term_win) && a:height == g:prev_height
         let g:prev_height = 0
@@ -192,7 +165,7 @@ function! TermToggle(height)
             \ }
         let win = nvim_open_win(buf, v:true, opts)
         " Set window options
-        call setwinvar(win, '&winhl', 'Normal:Normal')
+        call setwinvar(win, '&winhl', 'Normal:TerminalBackground')
         call setwinvar(win, '&number', 0)
         call setwinvar(win, '&relativenumber', 0)
         call setwinvar(win, '&signcolumn', 'no')
