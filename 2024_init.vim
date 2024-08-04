@@ -144,33 +144,71 @@ endif
 let g:term_buf = 0
 let g:term_win = 0
 let g:prev_height = 0
+"function! TermToggle(height)
+"	if win_gotoid(g:term_win) && a:height == g:prev_height
+"		let g:prev_height = 0
+"		hide
+"	elseif g:prev_height == 0
+"		let g:prev_height = a:height
+"		botright new
+"		exec "resize " . a:height
+"		try
+"			exec "buffer " . g:term_buf
+"		catch
+"			call termopen($SHELL, {"detach": 0})
+"			let g:term_buf = bufnr("")
+"			" https://github.com/akinsho/bufferline.nvim/issues/880#issuecomment-2140743483
+"			set nobuflisted
+"			set nohidden
+"			set nonumber
+"			set norelativenumber
+"			set signcolumn=no
+"		endtry
+"		startinsert!
+"		let g:term_win = win_getid()
+"	else
+"		let g:prev_height = a:height
+"		exec "resize " . a:height
+"		startinsert!
+"	endif
+"endfunction
 function! TermToggle(height)
-	if win_gotoid(g:term_win) && a:height == g:prev_height
-		let g:prev_height = 0
-		hide
-	elseif g:prev_height == 0
-		let g:prev_height = a:height
-		botright new
-		exec "resize " . a:height
-		try
-			exec "buffer " . g:term_buf
-		catch
-			call termopen($SHELL, {"detach": 0})
-			let g:term_buf = bufnr("")
-			" https://github.com/akinsho/bufferline.nvim/issues/880#issuecomment-2140743483
-			set nobuflisted
-			set nohidden
-			set nonumber
-			set norelativenumber
-			set signcolumn=no
-		endtry
-		startinsert!
-		let g:term_win = win_getid()
-	else
-		let g:prev_height = a:height
-		exec "resize " . a:height
-		startinsert!
-	endif
+    if win_gotoid(g:term_win) && a:height == g:prev_height
+        let g:prev_height = 0
+        hide
+    elseif g:prev_height == 0
+        let g:prev_height = a:height
+        " Create a floating window
+        let buf = nvim_create_buf(v:false, v:true)
+        let width = &columns
+        let height = a:height
+        let opts = {
+            \ 'relative': 'editor',
+            \ 'row': &lines - height,
+            \ 'col': 0,
+            \ 'width': width,
+            \ 'height': height,
+            \ 'style': 'minimal'
+            \ }
+        let win = nvim_open_win(buf, v:true, opts)
+        " Set window options
+        call setwinvar(win, '&winhl', 'Normal:Normal')
+        call setwinvar(win, '&number', 0)
+        call setwinvar(win, '&relativenumber', 0)
+        call setwinvar(win, '&signcolumn', 'no')
+        " Open terminal in the floating window
+        call termopen($SHELL, {"detach": 0})
+        let g:term_buf = bufnr("")
+        let g:term_win = win_getid()
+        " Set buffer options
+        setlocal nobuflisted
+        setlocal nohidden
+        startinsert!
+    else
+        let g:prev_height = a:height
+        call nvim_win_set_height(g:term_win, a:height)
+        startinsert!
+    endif
 endfunction
 nnoremap <A-t> :call TermToggle(10)<CR>
 tnoremap <A-t> <C-\><C-n>:call TermToggle(10)<CR>
@@ -188,11 +226,11 @@ set dir=~/.local/share/nvim/swap/
 
 "GIT (FUGITIVE):
 "---------------
-map fgb :Gblame<CR>
-map fgs :Gstatus<CR>
-map fgl :Glog<CR>
-map fgd :Gdiff<CR>
-map fgc :Gcommit<CR>
+map fgb :Git blame<CR>
+map fgs :Git status<CR>
+map fgl :Git log<CR>
+map fgd :Git diff<CR>
+map fgc :Git commit<CR>
 map fga :Git add %:p<CR>
 
 "SYNTAX HIGHLIGHTING:
@@ -205,6 +243,20 @@ syntax on
 nnoremap <silent> <C-l> :nohl<CR><C-l>
 " Highlight the current line the cursor is on
 set cursorline
+
+"ERRORS:
+"-------
+"function! ToggleError()
+"	if g:error_open
+"		:lua vim.diagnostic.close_float() <CR>
+"		let g:error_open = 0
+"	else
+"		:lua vim.diagnostic.open_float() <CR>
+"		let g:error_open = 1
+"	endif
+"endfunction
+"let g:error_open = 0
+"map <silent> <C-m> :call ToggleError()<CR>
 
 "AUTOCOMPLETE:
 "-------------
@@ -311,6 +363,7 @@ local map = require("mini.map")
 map.setup({
 	window = {
 		focusable = true,
+		zindex = 1,
 	},
 	integrations = {
 		map.gen_integration.gitsigns({
