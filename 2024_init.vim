@@ -146,22 +146,42 @@ let g:main_win = 0
 let g:term_win = 0
 let g:term_height = 0
 function! TermToggle(height)
-    if win_gotoid(g:term_win) && a:height == g:term_height
-        let g:term_height = 0
-        hide
+    if win_gotoid(g:term_win)
+        if a:height == g:term_height
+            let g:term_height = 0
+            hide
+        else
+            let g:term_height = a:height
+            " Recreate the floating window with new size
+            let buf = winbufnr(g:term_win)
+            call nvim_win_close(g:term_win, v:false)
+            let opts = {
+                \ 'relative': 'editor',
+                \ 'row': &lines - a:height,
+                \ 'col': 0,
+                \ 'width': &columns,
+                \ 'height': a:height,
+                \ 'style': 'minimal'
+                \ }
+            let win = nvim_open_win(buf, v:true, opts)
+            let g:term_win = win_getid()
+            call setwinvar(win, '&winhl', 'Normal:TerminalBackground')
+            call setwinvar(win, '&number', 0)
+            call setwinvar(win, '&relativenumber', 0)
+            call setwinvar(win, '&signcolumn', 'no')
+            startinsert!
+        endif
     elseif g:term_height == 0
         let g:main_win = win_getid()  " Remember the main window ID
         let g:term_height = a:height
         " Create a floating window
         let buf = nvim_create_buf(v:false, v:true)
-        let width = &columns
-        let height = a:height
         let opts = {
             \ 'relative': 'editor',
-            \ 'row': &lines - height,
+            \ 'row': &lines - a:height,
             \ 'col': 0,
-            \ 'width': width,
-            \ 'height': height,
+            \ 'width': &columns,
+            \ 'height': a:height,
             \ 'style': 'minimal'
             \ }
         let win = nvim_open_win(buf, v:true, opts)
@@ -177,10 +197,6 @@ function! TermToggle(height)
         " Set buffer options
         setlocal nobuflisted
         setlocal nohidden
-        startinsert!
-    else
-        let g:term_height = a:height
-        call nvim_win_set_height(g:term_win, a:height)
         startinsert!
     endif
     call AdjustMainWindowScrolling()
