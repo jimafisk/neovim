@@ -144,7 +144,7 @@ endif
 let g:term_buf = 0
 let g:term_win = 0
 let g:prev_height = 0
-highlight TerminalBackground guibg=#1a1a1a ctermbg=234
+highlight TerminalBackground guibg=#171b21 ctermbg=234
 function! TermToggle(height)
     if win_gotoid(g:term_win) && a:height == g:prev_height
         let g:prev_height = 0
