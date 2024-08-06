@@ -140,17 +140,18 @@ endif
 
 "TERMINAL:
 "---------
-" https://www.reddit.com/r/vim/comments/8n5bzs/using_neovim_is_there_a_way_to_display_a_terminal/
-let g:term_buf = 0
-let g:term_win = 0
 let g:prev_height = 0
 highlight TerminalBackground guibg=#171b21 ctermbg=234
+let g:main_win = 0
+let g:term_win = 0
+let g:term_height = 0
 function! TermToggle(height)
-    if win_gotoid(g:term_win) && a:height == g:prev_height
-        let g:prev_height = 0
+    if win_gotoid(g:term_win) && a:height == g:term_height
+        let g:term_height = 0
         hide
-    elseif g:prev_height == 0
-        let g:prev_height = a:height
+    elseif g:term_height == 0
+        let g:main_win = win_getid()  " Remember the main window ID
+        let g:term_height = a:height
         " Create a floating window
         let buf = nvim_create_buf(v:false, v:true)
         let width = &columns
@@ -178,11 +179,49 @@ function! TermToggle(height)
         setlocal nohidden
         startinsert!
     else
-        let g:prev_height = a:height
+        let g:term_height = a:height
         call nvim_win_set_height(g:term_win, a:height)
         startinsert!
     endif
+    call AdjustMainWindowScrolling()
 endfunction
+
+function! AdjustMainWindowScrolling()
+    if g:term_height > 0
+        let l:main_height = &lines - g:term_height
+        call setwinvar(g:main_win, '&scrolloff', l:main_height)
+    else
+        call setwinvar(g:main_win, '&scrolloff', 0)
+    endif
+endfunction
+
+augroup AdjustScrolling
+    autocmd!
+    autocmd WinEnter * call AdjustMainWindowScrolling()
+augroup END
+
+function! SwitchToMainWindow()
+    if win_getid() == g:term_win
+        call win_gotoid(g:main_win)
+        call AdjustMainWindowScrolling()
+    endif
+endfunction
+
+function! SwitchToTerminalWindow()
+    if win_getid() == g:main_win && g:term_win != 0
+        call win_gotoid(g:term_win)
+        setlocal scrolloff=0
+        startinsert!
+    endif
+endfunction
+" Switch to main window from terminal
+tnoremap <C-w>k <C-\><C-n>:call SwitchToMainWindow()<CR>
+" Switch to terminal window from main window and enter insert mode
+nnoremap <C-w>j :call SwitchToTerminalWindow()<CR>
+" Exit terminal mode
+tnoremap <C-w><Esc> <C-\><C-n>
+" Make sure Ctrl-W works in terminal mode
+tnoremap <C-w> <C-\><C-n><C-w>
 nnoremap <A-t> :call TermToggle(10)<CR>
 tnoremap <A-t> <C-\><C-n>:call TermToggle(10)<CR>
 nnoremap <A-z> :call TermToggle(50)<CR>
