@@ -230,14 +230,11 @@ function! AdjustScrollOff(main_height)
             
             if l:current_top_line < l:desired_top_line
                 let l:scroll_amount = l:desired_top_line - l:current_top_line
-                execute 'normal! ' . l:scroll_amount . "\<C-E>"
+                let l:save_pos = getpos('.')
+                silent execute 'normal! ' . l:scroll_amount . "\<C-E>"
+                call setpos('.', l:save_pos)
+                "silent execute 'normal! ' . l:scroll_amount . "\<C-E>"
             endif
-
-            " Ensure cursor doesn't go below the visible area
-            "let l:max_cursor_line = l:total_lines - a:main_height
-            "if l:current_line > l:max_cursor_line
-            "    call cursor(l:max_cursor_line, col('.'))
-            "endif
         endif
     endif
 endfunction
