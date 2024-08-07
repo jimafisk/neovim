@@ -204,32 +204,43 @@ endfunction
 
 function! AdjustMainWindowScrolling()
     if g:term_height > 0
-        "let l:main_height = &lines - g:term_height
         let l:main_height = g:term_height
-        "call setwinvar(g:main_win, '&scrolloff', l:main_height)
-		call win_execute(g:main_win, 'call AdjustScrollOff(' . l:main_height . ')')
+        call win_execute(g:main_win, 'call AdjustScrollOff(' . l:main_height . ')')
     else
         call setwinvar(g:main_win, '&scrolloff', 0)
     endif
 endfunction
 
 function! AdjustScrollOff(main_height)
-	if winline() < &lines/2
-        let &l:scrolloff = 0
-    else
-        let &l:scrolloff = a:main_height
+    "if winline() < &lines/2
+    "    let &l:scrolloff = 0
+    "else
+    "    let &l:scrolloff = a:main_height
+    "endif
+
+    let l:total_lines = line('$')
+    let l:current_line = line('.')
+    let l:visible_lines = &lines - a:main_height - &cmdheight - 1
+    let l:last_visible_line = l:total_lines - a:main_height + 1
+
+    if l:current_line > l:last_visible_line
+        let l:scroll_amount = l:current_line - l:last_visible_line
+        execute 'normal! ' . l:scroll_amount . "\<C-E>"
+        call cursor(l:last_visible_line, col('.'))
     endif
+
+    if line('w$') > l:total_lines
+        let l:overflow = line('w$') - l:total_lines
+        execute 'normal! ' . l:overflow . "\<C-Y>"
+    endif
+
+    let &l:scrolloff = a:main_height
 endfunction
 
 augroup AdjustScrolling
     autocmd!
     autocmd WinEnter,CursorMoved,CursorMovedI * call AdjustMainWindowScrolling()
 augroup END
-
-"augroup AdjustScrolling
-"    autocmd!
-"    autocmd WinEnter * call AdjustMainWindowScrolling()
-"augroup END
 
 function! SwitchToMainWindow()
     if win_getid() == g:term_win
