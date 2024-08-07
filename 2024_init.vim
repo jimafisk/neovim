@@ -212,29 +212,27 @@ function! AdjustMainWindowScrolling()
 endfunction
 
 function! AdjustScrollOff(main_height)
-    "if winline() < &lines/2
-    "    let &l:scrolloff = 0
-    "else
-    "    let &l:scrolloff = a:main_height
-    "endif
-
     let l:total_lines = line('$')
     let l:current_line = line('.')
     let l:visible_lines = &lines - a:main_height - &cmdheight - 1
     let l:last_visible_line = l:total_lines - a:main_height + 1
 
-    if l:current_line > l:last_visible_line
-        let l:scroll_amount = l:current_line - l:last_visible_line
-        execute 'normal! ' . l:scroll_amount . "\<C-E>"
-        call cursor(l:last_visible_line, col('.'))
-    endif
+    if winline() < &lines/2
+        let &l:scrolloff = 0
+    else
+        let &l:scrolloff = a:main_height
 
-    if line('w$') > l:total_lines
-        let l:overflow = line('w$') - l:total_lines
-        execute 'normal! ' . l:overflow . "\<C-Y>"
-    endif
+        if l:current_line > l:last_visible_line
+            let l:scroll_amount = l:current_line - l:last_visible_line
+            execute 'normal! ' . l:scroll_amount . "\<C-E>"
+            call cursor(l:last_visible_line, col('.'))
+        endif
 
-    let &l:scrolloff = a:main_height
+        if line('w$') > l:total_lines
+            let l:overflow = line('w$') - l:total_lines
+            execute 'normal! ' . l:overflow . "\<C-Y>"
+        endif
+    endif
 endfunction
 
 augroup AdjustScrolling
