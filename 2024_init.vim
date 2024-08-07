@@ -215,22 +215,29 @@ function! AdjustScrollOff(main_height)
     let l:total_lines = line('$')
     let l:current_line = line('.')
     let l:visible_lines = &lines - a:main_height - &cmdheight - 1
-    let l:last_visible_line = l:total_lines - a:main_height + 1
 
     if winline() < &lines/2
         let &l:scrolloff = 0
     else
         let &l:scrolloff = a:main_height
 
-        if l:current_line > l:last_visible_line
-            let l:scroll_amount = l:current_line - l:last_visible_line
-            execute 'normal! ' . l:scroll_amount . "\<C-E>"
-            call cursor(l:last_visible_line, col('.'))
-        endif
+        " Calculate the line where we should start adjusting scroll
+        let l:adjust_line = l:total_lines - l:visible_lines + 1
 
-        if line('w$') > l:total_lines
-            let l:overflow = line('w$') - l:total_lines
-            execute 'normal! ' . l:overflow . "\<C-Y>"
+        if l:current_line >= l:adjust_line
+            let l:desired_top_line = l:total_lines - l:visible_lines + 1
+            let l:current_top_line = line('w0')
+            
+            if l:current_top_line < l:desired_top_line
+                let l:scroll_amount = l:desired_top_line - l:current_top_line
+                execute 'normal! ' . l:scroll_amount . "\<C-E>"
+            endif
+
+            " Ensure cursor doesn't go below the visible area
+            "let l:max_cursor_line = l:total_lines - a:main_height
+            "if l:current_line > l:max_cursor_line
+            "    call cursor(l:max_cursor_line, col('.'))
+            "endif
         endif
     endif
 endfunction
