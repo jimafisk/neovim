@@ -204,17 +204,32 @@ endfunction
 
 function! AdjustMainWindowScrolling()
     if g:term_height > 0
-        let l:main_height = &lines - g:term_height
-        call setwinvar(g:main_win, '&scrolloff', l:main_height)
+        "let l:main_height = &lines - g:term_height
+        let l:main_height = g:term_height
+        "call setwinvar(g:main_win, '&scrolloff', l:main_height)
+		call win_execute(g:main_win, 'call AdjustScrollOff(' . l:main_height . ')')
     else
         call setwinvar(g:main_win, '&scrolloff', 0)
     endif
 endfunction
 
+function! AdjustScrollOff(main_height)
+	if winline() < &lines/2
+        let &l:scrolloff = 0
+    else
+        let &l:scrolloff = a:main_height
+    endif
+endfunction
+
 augroup AdjustScrolling
     autocmd!
-    autocmd WinEnter * call AdjustMainWindowScrolling()
+    autocmd WinEnter,CursorMoved,CursorMovedI * call AdjustMainWindowScrolling()
 augroup END
+
+"augroup AdjustScrolling
+"    autocmd!
+"    autocmd WinEnter * call AdjustMainWindowScrolling()
+"augroup END
 
 function! SwitchToMainWindow()
     if win_getid() == g:term_win
