@@ -222,7 +222,8 @@ function! AdjustScrollOff(main_height)
         let &l:scrolloff = a:main_height
 
         " Calculate the line where we should start adjusting scroll
-        let l:adjust_line = l:total_lines - l:visible_lines + 1
+        "let l:adjust_line = l:total_lines - l:visible_lines + 1
+        let l:adjust_line = l:total_lines - 10
 
         if l:current_line >= l:adjust_line
             let l:desired_top_line = l:total_lines - l:visible_lines + 1
