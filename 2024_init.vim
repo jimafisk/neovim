@@ -40,7 +40,6 @@ Plug 'hrsh7th/cmp-vsnip'
 Plug 'hrsh7th/vim-vsnip'
 Plug 'golang/vscode-go'
 "Git:
-Plug 'tpope/vim-fugitive'
 Plug 'lewis6991/gitsigns.nvim'
 "Terminal:
 Plug 'Jantcu/nvim-terminal'
@@ -140,12 +139,6 @@ if &term =~ '^screen'
   set ttymouse=xterm2
 endif
 
-"TERMINAL:
-"---------
-let g:nvim_terminal_background_color = '#171b21'
-let g:nvim_terminal_small_height = 10
-let g:nvim_terminal_large_height = 50
-
 "TEXT SEARCH:
 "------------
 "Makes Search Case Insensitive
@@ -154,15 +147,6 @@ set ignorecase
 "SWAP:
 "-----
 set dir=~/.local/share/nvim/swap/
-
-"GIT (FUGITIVE):
-"---------------
-map fgb :Git blame<CR>
-map fgs :Git status<CR>
-map fgl :Git log<CR>
-map fgd :Git diff<CR>
-map fgc :Git commit<CR>
-map fga :Git add %:p<CR>
 
 "SYNTAX HIGHLIGHTING:
 "--------------------
@@ -287,7 +271,22 @@ require("bufferline").setup({
 		},
 	}
 })
-require('gitsigns').setup()
+require('gitsigns').setup({
+	on_attach = function(bufnr)
+		local gitsigns = require('gitsigns')
+		local function map(mode, l, r, opts)
+			opts = opts or {}
+			opts.buffer = bufnr
+			vim.keymap.set(mode, l, r, opts)
+		end
+
+		map('n', 'gb', function() gitsigns.blame_line{full=true} end)
+		map('n', 'gtb', gitsigns.toggle_current_line_blame)
+		map('n', 'gd', gitsigns.diffthis)
+		map('n', 'gtd', function() gitsigns.diffthis('~') end)
+		map('n', 'gm', gitsigns.toggle_deleted)
+	end
+})
 
 -- require('mini.map').setup({
 local map = require("mini.map")
