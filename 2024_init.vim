@@ -266,6 +266,7 @@ require("nvim-tree").setup({
 })
 require("bufferline").setup({
 	options = {
+		close_command = ":Bdelete",
 		offsets = {
 			{ filetype = 'NvimTree', text = 'Directory' },
 		},
@@ -280,11 +281,11 @@ require('gitsigns').setup({
 			vim.keymap.set(mode, l, r, opts)
 		end
 
-		map('n', 'gb', function() gitsigns.blame_line{full=true} end)
-		map('n', 'gtb', gitsigns.toggle_current_line_blame)
-		map('n', 'gd', gitsigns.diffthis)
-		map('n', 'gtd', function() gitsigns.diffthis('~') end)
-		map('n', 'gm', gitsigns.toggle_deleted)
+		map('n', 'hgb', function() gitsigns.blame_line{full=true} end)
+		map('n', 'hgtb', gitsigns.toggle_current_line_blame)
+		map('n', 'hgd', gitsigns.diffthis)
+		map('n', 'hgtd', function() gitsigns.diffthis('~') end)
+		map('n', 'hgm', gitsigns.toggle_deleted)
 	end
 })
 
