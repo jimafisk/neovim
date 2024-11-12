@@ -270,6 +270,10 @@ require("bufferline").setup({
 		offsets = {
 			{ filetype = 'NvimTree', text = 'Directory' },
 		},
+		left_mouse_command = function(bufnum)
+			vim.fn.win_gotoid(vim.g.main_win)
+			vim.cmd('buffer ' .. bufnum)
+		end,
 	}
 })
 require('gitsigns').setup({
