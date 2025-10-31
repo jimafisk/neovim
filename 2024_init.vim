@@ -61,6 +61,10 @@ set clipboard+=unnamedplus
 vnoremap < <gv
 vnoremap > >gv
 
+"WRAPPING:
+"---------
+set nowrap
+
 "TABS/SPACE:
 "-----------
 set shiftwidth=4
