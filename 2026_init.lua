@@ -33,7 +33,12 @@ require("lazy").setup({
   { "junegunn/fzf.vim" },
 
   -- File Browser
-  { "nvim-tree/nvim-tree.lua" },
+  {
+    "A7Lavinraj/fyler.nvim",
+    branch = "stable",
+    lazy = false,
+    dependencies = { "echasnovski/mini.icons" },
+  },
   { "nvim-tree/nvim-web-devicons" },
   { "akinsho/bufferline.nvim", version = "*" },
   { "jimafisk/vim-bbye" },
@@ -153,27 +158,14 @@ vim.keymap.set("n", "<C-p>", ":FZF<CR>", { silent = true })
 vim.env.FZF_DEFAULT_COMMAND = "find -L"
 
 -------------------------------------------------------------------------------
--- FILE BROWSER (nvim-tree)
+-- FILE BROWSER (fyler.nvim)
 -------------------------------------------------------------------------------
--- https://github.com/nvim-tree/nvim-tree.lua/issues/1493#issuecomment-2111092995
-vim.g.nvim_tree_open = 0
-if vim.fn.isdirectory(vim.fn.argv(0) or "") == 1 then
-  vim.g.nvim_tree_open = 1
-end
-
-local function NvimTreeToggleAll()
-  local current_tab = vim.fn.tabpagenr()
-  if vim.g.nvim_tree_open == 1 then
-    vim.cmd("tabdo NvimTreeClose")
-    vim.g.nvim_tree_open = 0
-  else
-    vim.cmd("tabdo NvimTreeOpen")
-    vim.g.nvim_tree_open = 1
-  end
-  vim.cmd("tabnext " .. current_tab)
-end
-
-vim.keymap.set("n", "nt", NvimTreeToggleAll, { silent = true })
+-- Toggle fyler sidebar with Alt+f  
+vim.keymap.set("n", "<A-f>", function()
+  -- Just run the Fyler command - it handles opening
+  -- Close is handled by the mapping inside fyler (["<A-f>"] = "CloseView")
+  vim.cmd("Fyler kind=split_left_most")
+end, { silent = true })
 
 -------------------------------------------------------------------------------
 -- TABS / BUFFERS
@@ -345,7 +337,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
 })
 
 -------------------------------------------------------------------------------
--- nvim-tree
+-- fyler.nvim
 -------------------------------------------------------------------------------
 require("nvim-web-devicons").setup({
   override_by_extension = {
@@ -364,17 +356,38 @@ vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 vim.opt.termguicolors = true -- enable 24-bit colour
 
-require("nvim-tree").setup({
-  open_on_tab = true,
-  update_focused_file = {
-    enable = true,
+-- Fyler setup - edit filesystem like a buffer with vim motions
+-- i/I/A = rename (insert mode), o = new file below, dd = delete, V then x/p = cut/paste
+require("fyler").setup({
+  integrations = {
+    icon = "nvim_web_devicons",
   },
-  git = {
-    ignore = false,
-  },
-  renderer = {
-    -- https://github.com/NvChad/NvChad/issues/1956#issuecomment-1523128023
-    root_folder_label = false,
+  views = {
+    finder = {
+      close_on_select = false,  -- Keep sidebar open when selecting files
+      default_explorer = true,  -- Replace netrw
+      follow_current_file = true,  -- Auto-focus current file
+      columns = {
+        git = {
+          enabled = true,
+        },
+      },
+      mappings = {
+        ["<A-f>"] = "CloseView",  -- Alt+f closes fyler from within
+      },
+      win = {
+        kind = "split_left_most",
+        kinds = {
+          split_left_most = {
+            width = 30,  -- Fixed width in columns
+            win_opts = {
+              winfixwidth = true,
+              signcolumn = "yes",  -- Adds left padding
+            },
+          },
+        },
+      },
+    },
   },
 })
 
@@ -382,7 +395,7 @@ require("bufferline").setup({
   options = {
     close_command = ":Bdelete",
     offsets = {
-      { filetype = "NvimTree", text = "Directory" },
+      { filetype = "fyler", text = "Directory" },
     },
     left_mouse_command = function(bufnum)
       vim.fn.win_gotoid(vim.g.main_win)
