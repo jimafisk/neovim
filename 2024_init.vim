@@ -10,6 +10,8 @@ call plug#begin('~/.config/nvim/plugged')
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 "File Browser:
+"Plug 'stevearc/oil.nvim'
+"Plug 'A7Lavinraj/fyler.nvim'
 Plug 'nvim-tree/nvim-tree.lua'
 Plug 'nvim-tree/nvim-web-devicons'
 Plug 'akinsho/bufferline.nvim', { 'tag': '*' }
@@ -19,6 +21,8 @@ Plug 'echasnovski/mini.map'
 "Color:
 Plug 'morhetz/gruvbox'
 Plug 'navarasu/onedark.nvim'
+"Pico
+Plug 'plentico/pico-language', { 'rtp': 'neovim' }
 "Golang:
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 "Svelte:
@@ -72,6 +76,11 @@ set tabstop=4
 set list
 set listchars=tab:\ ,lead:·,trail:·,nbsp:␣
 "set listchars=eol:↵,trail:~,space:·,extends:\#
+set expandtab
+set tabstop=4
+set shiftwidth=4
+set shiftwidth=4
+set softtabstop=4
 
 "COLOR:
 "------
@@ -210,21 +219,51 @@ cmp.setup({
 		{ name = 'buffer' },
 	})
 })
+-- Snippet jump mappings (vsnip)
+local jump_next = function()
+  if vim.fn['vsnip#jumpable'](1) == 1 then
+    return '<Plug>(vsnip-jump-next)'
+  end
+end
+
+local jump_prev = function()
+  if vim.fn['vsnip#jumpable'](-1) == 1 then
+    return '<Plug>(vsnip-jump-prev)'
+  end
+end
+
+for _, key in ipairs({ '<Tab>', '<C-j>' }) do
+  vim.keymap.set({ 'i', 's' }, key, function()
+    return jump_next() or key
+  end, { expr = true, remap = true })
+end
+
+for _, key in ipairs({ '<S-Tab>', '<C-k>' }) do
+  vim.keymap.set({ 'i', 's' }, key, function()
+    return jump_prev() or key
+  end, { expr = true, remap = true })
+end
+
 
 -- Load LSPs
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
 -- go install golang.org/x/tools/gopls@latest
-require('lspconfig')['gopls'].setup {
-	capabilities = capabilities
-}
+vim.lsp.config('gopls', {
+  capabilities = capabilities,
+})
+vim.lsp.enable('gopls')
+
 -- npm install -g svelte-language-server
-require('lspconfig')['svelte'].setup {
-	capabilities = capabilities
-}
+vim.lsp.config('svelte', {
+  capabilities = capabilities,
+})
+vim.lsp.enable('svelte')
+
 -- go install github.com/a-h/templ/cmd/templ@latest
-require('lspconfig')['templ'].setup {
-	capabilities = capabilities
-}
+vim.lsp.config('templ', {
+  capabilities = capabilities,
+})
+vim.lsp.enable('templ')
 
 -- Set reveal definition / docs to CTRL+K (matches nvim-tree defaults)
 -- https://vi.stackexchange.com/questions/37225/how-do-i-close-a-hovered-window-with-lsp-information-escape-does-not-work
@@ -251,6 +290,17 @@ vim.api.nvim_create_autocmd("LspAttach", {
 ---------------
 -- nvim-tree --
 ---------------
+require("nvim-web-devicons").setup({
+    override_by_extension = {
+      pico = {
+        icon = "󰗀",
+        color = "#1c7fc7",
+        cterm_color = "39",
+        name = "Pico",
+      },
+    },
+    color_icons = true,
+  })
 -- disable default netrw
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
@@ -297,7 +347,6 @@ require('gitsigns').setup({
 	end
 })
 
--- require('mini.map').setup({
 local map = require("mini.map")
 map.setup({
 	window = {
@@ -317,5 +366,14 @@ map.setup({
 })
 map.open()
 vim.keymap.set('n', 'mm', MiniMap.toggle)
+
+--require("oil").setup({
+--	view_options = {
+--		show_hidden = true,
+--	}
+--})
+
+require('pico').setup()
+vim.g.vsnip_snippet_dirs = { vim.fn.expand('~/.config/nvim/plugged/pico-language/neovim/snippets') }
 
 EOF
