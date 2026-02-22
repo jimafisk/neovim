@@ -1,3 +1,13 @@
+-- Make vim.treesitter.start safe to prevent errors when parsers aren't installed
+-- This is needed because the built-in lua ftplugin calls vim.treesitter.start()
+local original_ts_start = vim.treesitter.start
+vim.treesitter.start = function(bufnr, lang)
+  local ok = pcall(original_ts_start, bufnr, lang)
+  if not ok then
+    -- Parser not available, silently fall back to syntax highlighting
+  end
+end
+
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -70,6 +80,21 @@ require("lazy").setup({
 
   -- Terminal
   { "Jantcu/nvim-terminal" },
+
+  -- Treesitter (syntax highlighting / parsing)
+  {
+    "nvim-treesitter/nvim-treesitter",
+    build = ":TSUpdate",
+    lazy = false, -- Load immediately to avoid ftplugin errors
+    priority = 1000,
+    config = function()
+      require("nvim-treesitter").setup({
+        ensure_installed = { "lua", "go", "svelte", "javascript", "html", "css" },
+        auto_install = true,
+        highlight = { enable = true },
+      })
+    end,
+  },
 })
 
 -------------------------------------------------------------------------------
