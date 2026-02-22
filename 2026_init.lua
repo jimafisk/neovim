@@ -46,6 +46,7 @@ require("lazy").setup({
   { "navarasu/onedark.nvim" },
 
   -- Pico
+  --{ dir = "/home/jim/Projects/plentico/pico-language", config = function(plugin)
   { "plentico/pico-language", config = function(plugin)
     vim.opt.rtp:append(plugin.dir .. "/neovim")
   end },
@@ -71,8 +72,9 @@ require("lazy").setup({
   { "hrsh7th/cmp-nvim-lsp-signature-help" },
 
   -- Snippets
-  { "hrsh7th/cmp-vsnip" },
-  { "hrsh7th/vim-vsnip" },
+  { "L3MON4D3/LuaSnip", version = "v2.*", build = "make install_jsregexp" },
+  { "saadparwaiz1/cmp_luasnip" },
+  { "rafamadriz/friendly-snippets" },
   { "golang/vscode-go" },
 
   -- Git
@@ -240,12 +242,13 @@ vim.opt.cursorline = true
 -- AUTOCOMPLETE (nvim-cmp)
 -------------------------------------------------------------------------------
 local cmp = require("cmp")
+local luasnip = require("luasnip")
 
 cmp.setup({
   snippet = {
     -- REQUIRED - you must specify a snippet engine
     expand = function(args)
-      vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
+      luasnip.lsp_expand(args.body) -- For LuaSnip users.
     end,
   },
   mapping = cmp.mapping({
@@ -261,37 +264,41 @@ cmp.setup({
   }),
   sources = cmp.config.sources({
     { name = "nvim_lsp" },
-    { name = "vsnip" },
+    { name = "luasnip" },
     { name = "nvim_lsp_signature_help" },
   }, {
     { name = "buffer" },
   }),
 })
 
--- Snippet jump mappings (vsnip)
-local function jump_next()
-  if vim.fn["vsnip#jumpable"](1) == 1 then
-    return "<Plug>(vsnip-jump-next)"
+-- Snippet jump mappings (LuaSnip)
+vim.keymap.set({ "i", "s" }, "<Tab>", function()
+  if luasnip.expand_or_jumpable() then
+    luasnip.expand_or_jump()
+  else
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Tab>", true, false, true), "n", false)
   end
-end
+end, { silent = true })
 
-local function jump_prev()
-  if vim.fn["vsnip#jumpable"](-1) == 1 then
-    return "<Plug>(vsnip-jump-prev)"
+vim.keymap.set({ "i", "s" }, "<S-Tab>", function()
+  if luasnip.jumpable(-1) then
+    luasnip.jump(-1)
+  else
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<S-Tab>", true, false, true), "n", false)
   end
-end
+end, { silent = true })
 
-for _, key in ipairs({ "<Tab>", "<C-j>" }) do
-  vim.keymap.set({ "i", "s" }, key, function()
-    return jump_next() or key
-  end, { expr = true, remap = true })
-end
+vim.keymap.set({ "i", "s" }, "<C-j>", function()
+  if luasnip.expand_or_jumpable() then
+    luasnip.expand_or_jump()
+  end
+end, { silent = true })
 
-for _, key in ipairs({ "<S-Tab>", "<C-k>" }) do
-  vim.keymap.set({ "i", "s" }, key, function()
-    return jump_prev() or key
-  end, { expr = true, remap = true })
-end
+vim.keymap.set({ "i", "s" }, "<C-k>", function()
+  if luasnip.jumpable(-1) then
+    luasnip.jump(-1)
+  end
+end, { silent = true })
 
 -------------------------------------------------------------------------------
 -- LSP CONFIG
@@ -428,5 +435,5 @@ vim.keymap.set("n", "mm", MiniMap.toggle)
 -------------------------------------------------------------------------------
 -- Pico
 -------------------------------------------------------------------------------
-require("pico").setup()
-vim.g.vsnip_snippet_dirs = { vim.fn.expand("~/.local/share/nvim/lazy/pico-language/neovim/snippets") }
+--require("pico").setup()
+require('pico').setup({ lsp = true })
