@@ -169,8 +169,8 @@ end, { silent = true })
 -- TABS / BUFFERS
 -------------------------------------------------------------------------------
 -- https://github.com/moll/vim-bbye/issues/15#issuecomment-2142727505
-vim.keymap.set("n", "<C-q>", ":Bdelete<CR>", { silent = true })
-vim.keymap.set("n", "<C-s>", ":w<CR>", { silent = true })
+vim.keymap.set("n", "<A-q>", ":Bdelete<CR>", { silent = true })
+vim.keymap.set("n", "<A-s>", ":w<CR>", { silent = true })
 vim.keymap.set("n", "gT", ":BufferLineCyclePrev<CR>", { silent = true })
 vim.keymap.set("n", "gt", ":BufferLineCycleNext<CR>", { silent = true })
 vim.opt.hidden = true
@@ -337,6 +337,13 @@ vim.api.nvim_create_autocmd("LspAttach", {
 -------------------------------------------------------------------------------
 -- fyler.nvim
 -------------------------------------------------------------------------------
+require('mini.icons').setup({
+  extension = {
+    pico  = { glyph = '󰰙', hl = 'MiniIconsBlue' },
+  },
+})
+
+--[[
 require("nvim-web-devicons").setup({
   override_by_extension = {
     pico = {
@@ -348,6 +355,7 @@ require("nvim-web-devicons").setup({
   },
   color_icons = true,
 })
+]]
 
 -- disable default netrw
 vim.g.loaded_netrw = 1
@@ -357,9 +365,6 @@ vim.opt.termguicolors = true -- enable 24-bit colour
 -- Fyler setup - edit filesystem like a buffer with vim motions
 -- i/I/A = rename (insert mode), o = new file below, dd = delete, V then x/p = cut/paste
 require("fyler").setup({
-  integrations = {
-    icon = "nvim_web_devicons",
-  },
   views = {
     finder = {
       close_on_select = false,  -- Keep sidebar open when selecting files
