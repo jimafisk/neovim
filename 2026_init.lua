@@ -162,9 +162,7 @@ vim.env.FZF_DEFAULT_COMMAND = "find -L"
 -------------------------------------------------------------------------------
 -- Toggle fyler sidebar with Alt+f  
 vim.keymap.set("n", "<A-f>", function()
-  -- Just run the Fyler command - it handles opening
-  -- Close is handled by the mapping inside fyler (["<A-f>"] = "CloseView")
-  vim.cmd("Fyler kind=split_left_most")
+  require("fyler").toggle({ kind = "split_left_most" })
 end, { silent = true })
 
 -------------------------------------------------------------------------------
@@ -371,9 +369,6 @@ require("fyler").setup({
         git = {
           enabled = true,
         },
-      },
-      mappings = {
-        ["<A-f>"] = "CloseView",  -- Alt+f closes fyler from within
       },
       win = {
         kind = "split_left_most",
