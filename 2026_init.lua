@@ -37,7 +37,7 @@ require("lazy").setup({
     "A7Lavinraj/fyler.nvim",
     branch = "stable",
     lazy = false,
-    dependencies = { "echasnovski/mini.icons" },
+    -- dependencies = { "echasnovski/mini.icons" },
   },
   { "nvim-tree/nvim-web-devicons" },
   { "akinsho/bufferline.nvim", version = "*" },
@@ -335,27 +335,35 @@ vim.api.nvim_create_autocmd("LspAttach", {
 })
 
 -------------------------------------------------------------------------------
--- fyler.nvim
+-- File extension icons
 -------------------------------------------------------------------------------
+--[[
 require('mini.icons').setup({
   extension = {
     pico  = { glyph = '󰰙', hl = 'MiniIconsBlue' },
   },
 })
+]]
 
---[[
 require("nvim-web-devicons").setup({
   override_by_extension = {
     pico = {
-      icon = "󰗀",
+      icon = "",
       color = "#1c7fc7",
       cterm_color = "39",
       name = "Pico",
     },
+    ["go.mod"] = { icon = "", color = "#7dcfff", name = "GoMod" },
+    ["go.sum"]     = { icon = "", color = "#7dcfff", name = "GoSum" },
+    [".gitignore"] = { icon = "", color = "#f1502f",  name = "Gitignore" },
+    ["LICENSE"] = { icon = "", color = "#d4c4a8", name = "License" },
   },
   color_icons = true,
 })
-]]
+
+-------------------------------------------------------------------------------
+-- fyler.nvim file explorer
+-------------------------------------------------------------------------------
 
 -- disable default netrw
 vim.g.loaded_netrw = 1
@@ -365,6 +373,9 @@ vim.opt.termguicolors = true -- enable 24-bit colour
 -- Fyler setup - edit filesystem like a buffer with vim motions
 -- i/I/A = rename (insert mode), o = new file below, dd = delete, V then x/p = cut/paste
 require("fyler").setup({
+  integrations = {
+    icon = "nvim_web_devicons",
+  },
   views = {
     finder = {
       close_on_select = false,  -- Keep sidebar open when selecting files
@@ -402,6 +413,17 @@ require("bufferline").setup({
       vim.cmd("buffer " .. bufnum)
     end,
   },
+})
+
+-- Enable mouse click to open files/folders in Fyler
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "fyler",
+  callback = function()
+    -- Double-click to open file/folder
+    vim.keymap.set("n", "<2-LeftMouse>", "<CR>", { buffer = true, remap = true })
+    -- Single click also works (optional - uncomment if preferred)
+    -- vim.keymap.set("n", "<LeftMouse>", "<LeftMouse><CR>", { buffer = true, remap = true })
+  end,
 })
 
 require("gitsigns").setup({
