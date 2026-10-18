@@ -34,8 +34,10 @@ require("lazy").setup({
 
   -- File Browser
   {
-    "A7Lavinraj/fyler.nvim",
-    branch = "stable",
+    --"A7Lavinraj/fyler.nvim",
+    "jimafisk/fyler.nvim",
+    --branch = "stable",
+    branch = "main",
     lazy = false,
     -- dependencies = { "echasnovski/mini.icons" },
   },
@@ -376,40 +378,34 @@ require("fyler").setup({
   integrations = {
     icon = "nvim_web_devicons",
   },
-  views = {
-    finder = {
-      close_on_select = false,  -- Keep sidebar open when selecting files
-      default_explorer = true,  -- Replace netrw
-      follow_current_file = true,  -- Auto-focus current file
-      columns = {
-        git = {
-          enabled = true,
-        },
-      },
-      win = {
-        kind = "split_left_most",
-        kinds = {
-          split_left_most = {
-            width = 30,  -- Fixed width in columns
-            win_opts = {
-              winfixwidth = true,
-              signcolumn = "yes",  -- Adds left padding
-            },
-          },
-        },
+  extensions = {
+    git = { enabled = true },
+  },
+  kind = "split_left_most",
+  kind_presets = {
+    split_left_most = {
+      width = 30,  -- Fixed width in columns
+      win_opts = {
+        winfixwidth = true,
+        signcolumn = "yes",  -- Adds left padding
       },
     },
   },
+  follow_current_file = true,  -- Auto-focus current file
+  use_as_default_explorer = true,  -- Replace netrw
 })
 
 require("bufferline").setup({
   options = {
     close_command = ":Bdelete",
     offsets = {
-      { filetype = "fyler", text = "Directory" },
+      { filetype = "fyler_finder", text = "Directory" },
     },
     left_mouse_command = function(bufnum)
-      vim.fn.win_gotoid(vim.g.main_win)
+      local main_win = vim.g.main_win
+      if main_win and vim.api.nvim_win_is_valid(main_win) then
+        vim.fn.win_gotoid(main_win)
+      end
       vim.cmd("buffer " .. bufnum)
     end,
   },
@@ -417,7 +413,7 @@ require("bufferline").setup({
 
 -- Enable mouse click to open files/folders in Fyler
 vim.api.nvim_create_autocmd("FileType", {
-  pattern = "fyler",
+  pattern = "fyler_finder",
   callback = function()
     -- Double-click to open file/folder
     vim.keymap.set("n", "<2-LeftMouse>", "<CR>", { buffer = true, remap = true })
